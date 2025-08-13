@@ -42,7 +42,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 
 pdf_path = "/content/AIML-Driven Automated Feature Detection Change Analysis of Glacial Lakes, Road Networks, and Urban Drainage Systems Team GeoSense Advanced Remote Sensing Solutions 2024 Technical Proposal_compressed.pdf"
-OPENROUTER_API_KEY = "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"  # Replace this with your OpenRouter API key
+OPENROUTER_API_KEY = "sk-or-v1-0f7ac767879fee467cdfcd591ba581e88057ab99c4d3e36f2d"  # Replace this with your OpenRouter API key
 MODEL_NAME = "meta-llama/llama-3-70b-instruct"  # You can try others too
 
 
