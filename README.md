@@ -1,86 +1,123 @@
-# llm_project
-# 🤖 LLM Project using Transformer & Attention Mechanisms (GPT-2, PyTorch)
+📄🤖 RAG-based PDF Chatbot using LangChain, LangGraph & HuggingFace
 
-This project demonstrates the power of **Transformer-based Large Language Models (LLMs)** using the **GPT-2** architecture, implemented in **PyTorch** and run on **Google Colab**.
+A smart Retrieval-Augmented Generation (RAG) chatbot that allows users to ask questions from a PDF document and get accurate, context-aware answers using modern LLM tooling.
 
-It explores core NLP tasks such as:
-- 📝 Text Generation
-- 📚 Text Summarization
-- 🧠 Text Classification
-- ❓ Question Answering
+This project combines LangChain, LangGraph, FAISS, and HuggingFace models to build an end-to-end conversational AI system. 🚀
 
-All powered by the **attention mechanism** at the heart of modern LLMs.
+✨ Features
 
----
-<img width="515" height="384" alt="image" src="https://github.com/user-attachments/assets/66c0c8bf-cddd-4175-bb9b-529783d2958f" />
+✅ Upload and process PDF documents
+✅ Chunking & semantic embeddings
+✅ Fast similarity search using FAISS
+✅ Tool-based retrieval with LangGraph
+✅ LLM-powered conversational interface
+✅ Modular & scalable architecture
+
+🧠 How It Works
+
+📂 Load PDF using PyPDFLoader
+
+✂️ Split text into chunks
+
+🔢 Generate embeddings using Sentence Transformers
+
+🗂️ Store vectors in FAISS
+
+🔍 Retrieve relevant chunks based on user query
+
+🤝 Pass context to LLM using LangGraph tools
+
+💬 Generate intelligent responses
+
+🛠️ Tech Stack
+🔹 Programming Language
+
+Python 3.9+
+
+🔹 Frameworks & Libraries
+
+LangChain – LLM orchestration
+
+LangGraph – Stateful conversational workflow
+
+HuggingFace Transformers – LLM & embeddings
+
+Sentence-Transformers – Semantic search
+
+FAISS – Vector similarity search
+
+PyPDF – PDF parsing
+
+🔹 Models Used
+
+DeepSeek-V3.2 (via HuggingFace Endpoint) – Text generation
+
+all-MiniLM-L6-v2 – Embeddings model
+
+🔹 Tools & Platforms
+
+Google Colab / Jupyter Notebook
+
+Git & GitHub
+
+HuggingFace Hub
+
+📦 Installation
+pip install -U langchain langchain-core langchain-community langchain-huggingface langgraph
+pip install pypdf faiss-cpu sentence-transformers
+
+🔑 Setup
+
+Set your HuggingFace token:
+
+import os
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "your_token_here"
+
+▶️ Run the Project
+python app.py
 
 
-## 📌 Project Objectives
+Then type your query:
 
-- Understand and visualize the **attention mechanism** in GPT-based models.
-- Build a flexible, Colab-ready NLP workflow using PyTorch and Hugging Face.
-- Apply the model to real-world tasks such as:
-  - Text generation with custom prompts
-  - Summarization of large paragraphs
-  - Simple text classification tasks
-  - Interactive question answering
+user Type Message:- What is machine learning?
 
----
+📂 Project Structure
+.
+├── app.py
+├── data/
+│   └── sample.pdf
+├── requirements.txt
+└── README.md
 
-## 🌐 Live Notebook (Google Colab)
+🎯 Use Cases
 
-> 🟢 You can open and run this project directly in your browser with Colab.
+📚 Academic PDF assistant
 
-[🔗 Open in Google Colab]([https://colab.research.google.com/](https://colab.research.google.com/drive/1hhSGdcddOTX7X-9y9vlKM_odmdGmr4WO#scrollTo=s_2WjvUszhIe))  
-*(Replace this with your actual notebook link)*
+🏢 Internal document chatbot
 
----
+📑 Research paper Q&A system
 
-## 🛠️ Technologies & Libraries Used
+🧑‍💻 AI-powered knowledge base
 
-| Technology | Purpose |
-|------------|---------|
-| **Python** | Core language |
-| **PyTorch** | Deep learning framework |
-| **Transformers (Hugging Face)** | Pretrained GPT-2 model loading and fine-tuning |
-| **Google Colab** | Cloud-based development and training |
-| **Matplotlib / Seaborn** | (Optional) Attention visualization |
+🚀 Future Improvements
 
----
+Add Streamlit UI 🌐
 
-## 🧠 Key Concepts Demonstrated
+Support multiple PDFs
 
-### 🔹 Transformer Architecture
-- Multi-head attention layers
-- Positional encoding
-- Layer normalization and residual connections
+Add conversation memory 🧠
 
-### 🔹 GPT-2 Model
-- Pretrained transformer decoder
-- Tokenization with GPT-2 tokenizer
-- Auto-regressive text generation
+Use reranking models for better accuracy
 
-### 🔹 Attention Visualization *(if implemented)*
-- Head-wise attention heatmaps
-- Attention across tokens and layers
+Deploy using Docker + AWS ☁️
 
----
+🤝 Contributing
 
-## 💡 Features
+Contributions are welcome!
+Feel free to fork this repo, raise issues, or submit pull requests. 🙌
 
-- Load and test **GPT-2** from Hugging Face Transformers
-- Run **text generation** interactively
-- Try out **summarization** using prompt engineering
-- Basic **text classification** with labeled inputs
-- Interactive **Q&A system** using GPT-2 prompts
-- Easily customizable and extendable for more tasks
+📬 Contact
 
----
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/llm-transformer-attention-project.git
-cd llm-transformer-attention-project
+Preet Jaiswal
+🎓 B.Tech Mechanical Engineering | Minor in Mathematical Computing
+🤖 AI/ML & LLM Enthusiast
