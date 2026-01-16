@@ -1,137 +1,105 @@
-!pip install pdfplumber
-# Role: Installs the pdfplumber Python library.
+!pip install -U langchain-huggingface langchain-community langchain-core langchain langgraph 
 
-# Purpose: Lets you read and extract text, tables, and metadata from PDF files. Often used in document-processing or OCR workflows.
+from langchain_huggingface import ChatHuggingFace,HuggingFaceEndpoint,HuggingFaceEmbeddings
 
-# Example use: Extracting text from an uploaded PDF for NLP or search.
+import os
+os.environ['HUGGINGFACEHUB_API_TOKEN']="hF_"
+llm=HuggingFaceEndpoint(
+    repo_id="deepseek-ai/DeepSeek-V3.2",
+    task="text-generation"
+)
+model=ChatHuggingFace(llm=llm)
 
+from langchain_community.document_loaders import PyPDFLoader
 
-!pip install tiktoken
-# Role: Installs the tiktoken library from OpenAI.
+pip install pypdf
 
-# Purpose: Efficiently tokenizes text into the format used by OpenAI models (counts tokens, converts text to token IDs, etc.).
+loader=PyPDFLoader('/content/22MEB0A46_TFTTHINK.pdf')
+data=loader.load()
 
-# Example use: Checking token length before sending text to GPT to avoid exceeding the model’s context limit.
-!pip install sentence_transformers
-# Role: Installs the sentence-transformers library.
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# Purpose: Provides pre-trained models to create sentence embeddings — numerical vectors representing semantic meaning.
+splitter=RecursiveCharacterTextSplitter(chunk_size=100,chunk_overlap=30)
 
-# Example use: Building a semantic search engine or clustering similar sentences/documents.
-
-
-!pip install faiss-cpu
-# Role: Installs the CPU version of FAISS (Facebook AI Similarity Search).
-
-# Purpose: Lets you store and search large collections of vectors (like embeddings) efficiently.
-
-# Example use: Finding the top N most similar documents to a query embedding.
-!pip install openrouter
-
-# Role: Installs the openrouter Python package.
-
-# Purpose: Allows your Python code to connect to the OpenRouter API — a service that provides access to multiple LLM providers via a unified API.
-
-# Example use: Sending prompts to GPT-4, Claude, or other LLMs via OpenRouter.
-
-import pdfplumber
-import numpy as np
-import requests
-import tiktoken
-from sentence_transformers import SentenceTransformer
-import faiss
-
-pdf_path = "/content/AIML-Driven Automated Feature Detection Change Analysis of Glacial Lakes, Road Networks, and Urban Drainage Systems Team GeoSense Advanced Remote Sensing Solutions 2024 Technical Proposal_compressed.pdf"
-OPENROUTER_API_KEY = "sk-or-v1-0f7ac767879fee467cdfcd591ba581e88057ab99c4d3e36f2d"  # Replace this with your OpenRouter API key
-MODEL_NAME = "meta-llama/llama-3-70b-instruct"  # You can try others too
-
-
-print("📄 Extracting text from PDF...")
-
-
-with pdfplumber.open(pdf_path) as pdf:
-    text = "\n".join(page.extract_text() for page in pdf.pages if page.extract_text())
-
-
-# === STEP 2: Split text using tiktoken ===
-def chunk_text(text, model_name="gpt-3.5-turbo", chunk_tokens=500, overlap_tokens=50):
-    enc = tiktoken.encoding_for_model(model_name)
-    tokens = enc.encode(text)
-
-    chunks = []
-    start = 0
-    while start < len(tokens):
-        end = start + chunk_tokens
-        chunk = enc.decode(tokens[start:end])
-        chunks.append(chunk)
-        start += chunk_tokens - overlap_tokens
-
-    return chunks
-
-print("🧠 Splitting text using tiktoken...")
-chunks = chunk_text(text)
+chunk=splitter.split_documents(data)
 
 
 
-# === STEP 3: Embed chunks ===
-def embed_chunks(chunks, model):
-    return model.encode(chunks)
+embedding=HuggingFaceEmbeddings(
+    model="sentence-transformers/all-MiniLM-L6-v2"
+)
 
-print("🔍 Embedding chunks...")
-embed_model = SentenceTransformer("all-MiniLM-L6-v2")
-embeddings = embed_chunks(chunks, embed_model)
+x=embedding.embed_documents([doc.page_content for doc in chunk])
 
-# === STEP 4: Build FAISS index ===
-def build_faiss_index(embeddings):
-    index = faiss.IndexFlatL2(embeddings.shape[1])
-    index.add(np.array(embeddings))
-    return index
+from langchain_community.vectorstores import FAISS
 
-print("📦 Building FAISS index...")
-index = build_faiss_index(np.array(embeddings))
+pip install faiss-cpu
 
-# === STEP 5: Answer query using OpenRouter ===
-def answer_query_openrouter(query, embed_model, chunks, index, k=3):
-    query_embedding = embed_model.encode([query])
-    D, I = index.search(np.array(query_embedding), k)
+vector_store=FAISS.from_documents(chunk,embedding)
 
-    context = "\n\n".join([chunks[i] for i in I[0]])
-    prompt = f"""You are a helpful assistant. Answer the following customer query using the insurance text below.
+vector_store
 
-Insurance Text:
-{context}
+retriever=vector_store.as_retriever(search_type='similarity',search_kwargs={'k':4})
 
-Question: {query}
-Answer:"""
+retriever
 
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json"
-    }
+from typing import TypedDict,Annotated
+from langchain_core.messages import HumanMessage,BaseMessage
+from langgraph.graph.message import add_messages
 
-    payload = {
-        "model": MODEL_NAME,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.2,
-        "max_tokens": 500
-    }
 
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
 
-    if response.status_code == 200:
-        return response.json()['choices'][0]['message']['content']
-    else:
-        print(f"❌ OpenRouter API Error {response.status_code}: {response.text}")
-        return "Error occurred."
+class chatstate(TypedDict):
+  messages:Annotated[list[BaseMessage],add_messages]
 
-# === INTERACTIVE LOOP ===
-while True:
-    query = input("\n💬 Ask your question about the PDF (or type 'exit'): ")
-    if query.lower() == "exit":
-        break
-    print("🤖 Thinking...")
-    answer = answer_query_openrouter(query, embed_model, chunks, index)
-    print(f"📢 Answer: {answer}")
+from langchain_core.tools import tool
+
+@tool
+def rag_tool(query):
+  """
+  Retrieve the relevant information from pdf
+  """
+  res=retriever.invoke(query)
+  context=[docs.page_content for docs in res]
+  metadata=[docs.metadata for docs in res]
+  return {
+      "query":query,
+      "context":context,
+      "metadata":metadata
+  }
+
+tools=[rag_tool]
+model_with_tool=model.bind_tools(tools)
+
+from langgraph.prebuilt import ToolNode,tools_condition
+
+tool_node=ToolNode(tools)
+
+from langgraph.graph import StateGraph,START,END
+
+def chat_node(state:chatstate):
+  message=state['messages']
+  res=model_with_tool.invoke(message)
+  return {'messages':[res]}
+
+graph=StateGraph(chatstate)
+graph.add_node('chat_node',chat_node)
+graph.add_node('tools',tool_node)
+
+graph.add_edge(START,'chat_node')
+graph.add_conditional_edges('chat_node',tools_condition)
+graph.add_edge('tools','chat_node')
+chatbot=graph.compile()
+
+prompt=input("user Type Message:- ")
+res=chatbot.invoke({
+    'messages':[
+        HumanMessage(
+            content=prompt
+        )
+    ]
+})
+print(res['messages'][-1].content)
+
+
 
