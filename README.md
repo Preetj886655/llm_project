@@ -3,6 +3,8 @@
 A smart Retrieval-Augmented Generation (RAG) chatbot that allows users to ask questions from a PDF document and get accurate, context-aware answers using modern LLM tooling.
 
 This project combines LangChain, LangGraph, FAISS, and HuggingFace models to build an end-to-end conversational AI system. 🚀
+🔗 **Live Demo:** [Click here to try the app](https://huggingface.co/spaces/Preetj2/LLM_Project)
+
 
 ✨ Features
 
